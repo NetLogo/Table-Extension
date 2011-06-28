@@ -150,7 +150,7 @@ public class TableExtension
     StringBuilder buffer = new StringBuilder();
     for (Table table : tables.keySet()) {
       buffer.append
-          (org.nlogo.api.Dump.csv.encode
+          (org.nlogo.api.Dump.csv().encode
               (org.nlogo.api.Dump.extensionObject(table, true, true, false)) + "\n");
     }
     return buffer;
