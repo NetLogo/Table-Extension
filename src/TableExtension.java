@@ -173,7 +173,7 @@ public class TableExtension
   public static class Clear extends DefaultCommand {
     public Syntax getSyntax() {
       return Syntax.commandSyntax
-          (new int[]{Syntax.TYPE_WILDCARD});
+          (new int[]{Syntax.WildcardType()});
     }
 
     public String getAgentClassString() {
@@ -195,8 +195,8 @@ public class TableExtension
   public static class Get extends DefaultReporter {
     public Syntax getSyntax() {
       return Syntax.reporterSyntax
-          (new int[]{Syntax.TYPE_WILDCARD, Syntax.TYPE_WILDCARD},
-              Syntax.TYPE_WILDCARD);
+          (new int[]{Syntax.WildcardType(), Syntax.WildcardType()},
+              Syntax.WildcardType());
     }
 
     public String getAgentClassString() {
@@ -225,8 +225,8 @@ public class TableExtension
   public static class HasKey extends DefaultReporter {
     public Syntax getSyntax() {
       return Syntax.reporterSyntax
-          (new int[]{Syntax.TYPE_WILDCARD, Syntax.TYPE_WILDCARD},
-              Syntax.TYPE_BOOLEAN);
+          (new int[]{Syntax.WildcardType(), Syntax.WildcardType()},
+              Syntax.BooleanType());
     }
 
     public String getAgentClassString() {
@@ -249,8 +249,8 @@ public class TableExtension
   public static class Keys extends DefaultReporter {
     public Syntax getSyntax() {
       return Syntax.reporterSyntax
-          (new int[]{Syntax.TYPE_WILDCARD},
-              Syntax.TYPE_LIST);
+          (new int[]{Syntax.WildcardType()},
+              Syntax.ListType());
     }
 
     public String getAgentClassString() {
@@ -272,8 +272,8 @@ public class TableExtension
   public static class Length extends DefaultReporter {
     public Syntax getSyntax() {
       return Syntax.reporterSyntax
-          (new int[]{Syntax.TYPE_WILDCARD},
-              Syntax.TYPE_NUMBER);
+          (new int[]{Syntax.WildcardType()},
+              Syntax.NumberType());
     }
 
     public String getAgentClassString() {
@@ -294,7 +294,7 @@ public class TableExtension
 
   public static class Make extends DefaultReporter {
     public Syntax getSyntax() {
-      return Syntax.reporterSyntax(Syntax.TYPE_WILDCARD);
+      return Syntax.reporterSyntax(Syntax.WildcardType());
     }
 
     public String getAgentClassString() {
@@ -311,8 +311,8 @@ public class TableExtension
   public static class Put extends DefaultCommand {
     public Syntax getSyntax() {
       return Syntax.commandSyntax
-          (new int[]{Syntax.TYPE_WILDCARD, Syntax.TYPE_WILDCARD,
-              Syntax.TYPE_WILDCARD});
+          (new int[]{Syntax.WildcardType(), Syntax.WildcardType(),
+              Syntax.WildcardType()});
     }
 
     public String getAgentClassString() {
@@ -341,7 +341,7 @@ public class TableExtension
   public static class Remove extends DefaultCommand {
     public Syntax getSyntax() {
       return Syntax.commandSyntax
-          (new int[]{Syntax.TYPE_WILDCARD, Syntax.TYPE_WILDCARD});
+          (new int[]{Syntax.WildcardType(), Syntax.WildcardType()});
     }
 
     public String getAgentClassString() {
@@ -363,8 +363,8 @@ public class TableExtension
   public static class ToList extends DefaultReporter {
     public Syntax getSyntax() {
       return Syntax.reporterSyntax
-          (new int[]{Syntax.TYPE_WILDCARD},
-              Syntax.TYPE_LIST);
+          (new int[]{Syntax.WildcardType()},
+              Syntax.ListType());
     }
 
     public String getAgentClassString() {
@@ -388,8 +388,8 @@ public class TableExtension
   public static class FromList extends DefaultReporter {
     public Syntax getSyntax() {
       return Syntax.reporterSyntax
-          (new int[]{Syntax.TYPE_LIST},
-              Syntax.TYPE_WILDCARD);
+          (new int[]{Syntax.ListType()},
+              Syntax.WildcardType());
     }
 
     public String getAgentClassString() {
