@@ -1,8 +1,3 @@
-// (c) 2007-2011 Uri Wilensky. See README.txt for terms of use.
-
-// This NetLogo extension provides a new "table" data type,
-// based on Java's LinkedHashMap class.
-
 package org.nlogo.extensions.table;
 
 import org.nlogo.api.CompilerException;
