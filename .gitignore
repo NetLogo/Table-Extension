@@ -1,3 +1,4 @@
-classes
-table.jar
-table.zip
+/classes
+/table.jar
+/table.jar.pack.gz
+/table.zip
