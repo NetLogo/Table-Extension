@@ -8,9 +8,7 @@ This extension is pre-installed in NetLogo. For instructions on using it, or for
 
 ## Building
 
-Use the NETLOGO environment variable to tell the Makefile which NetLogo.jar to compile against.  For example:
-
-    NETLOGO=/Applications/NetLogo\\\ 5.0 make
+Run `make`.
 
 If compilation succeeds, `table.jar` will be created.
 
