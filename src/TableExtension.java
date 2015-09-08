@@ -61,7 +61,7 @@ public class TableExtension
 
     public void addAll(LogoList alist)
         throws ExtensionException {
-      for (Iterator it = alist.iterator(); it.hasNext();) {
+      for (Iterator<Object> it = alist.iterator(); it.hasNext();) {
         Object pair = it.next();
         if ((pair instanceof LogoList
             && ((LogoList) pair).size() < 2)
@@ -87,8 +87,8 @@ public class TableExtension
 
     public LogoList toList() {
       LogoListBuilder alist = new LogoListBuilder();
-      for (Iterator entries = entrySet().iterator(); entries.hasNext();) {
-        java.util.Map.Entry entry = (java.util.Map.Entry) entries.next();
+      for (Iterator<java.util.Map.Entry<Object, Object>> entries = entrySet().iterator(); entries.hasNext();) {
+        java.util.Map.Entry<Object, Object> entry = entries.next();
         LogoListBuilder pair = new LogoListBuilder();
         pair.add(entry.getKey());
         pair.add(entry.getValue());
@@ -124,7 +124,7 @@ public class TableExtension
       if (size() != otherTable.size()) {
         return false;
       }
-      for (Iterator iter = keySet().iterator(); iter.hasNext();) {
+      for (Iterator<Object> iter = keySet().iterator(); iter.hasNext();) {
         Object key = iter.next();
         if (!otherTable.containsKey(key)
             || !org.nlogo.api.Equality.equals(get(key),
@@ -435,7 +435,7 @@ public class TableExtension
   }
 
   private static boolean containsOnlyValidKeys(LogoList list) {
-    for (Iterator it = list.iterator(); it.hasNext();) {
+    for (Iterator<Object> it = list.iterator(); it.hasNext();) {
       Object o = it.next();
       if (!isValidKey(o)) {
         return false;

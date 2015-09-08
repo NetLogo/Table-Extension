@@ -2,3 +2,5 @@
 /table.jar
 /table.jar.pack.gz
 /table.zip
+target/
+/project/project
