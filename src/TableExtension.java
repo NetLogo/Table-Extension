@@ -1,13 +1,14 @@
 package org.nlogo.extensions.table;
 
-import org.nlogo.api.CompilerException;
+import org.nlogo.core.CompilerException;
 import org.nlogo.api.LogoException;
 import org.nlogo.api.LogoException;
-import org.nlogo.api.LogoList;
+import org.nlogo.core.LogoList;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.Argument;
-import org.nlogo.api.Syntax;
+import org.nlogo.core.Syntax;
+import org.nlogo.core.SyntaxJ;
 import org.nlogo.api.Context;
 import org.nlogo.api.DefaultReporter;
 import org.nlogo.api.DefaultCommand;
@@ -44,7 +45,7 @@ public class TableExtension
       extends java.util.LinkedHashMap<Object, Object>
       // new NetLogo data types defined by extensions must implement
       // this interface
-      implements org.nlogo.api.ExtensionObject {
+      implements org.nlogo.core.ExtensionObject {
     private final long id;
 
     public Table() {
@@ -61,7 +62,7 @@ public class TableExtension
 
     public void addAll(LogoList alist)
         throws ExtensionException {
-      for (Iterator<Object> it = alist.iterator(); it.hasNext();) {
+      for (Iterator<Object> it = alist.javaIterator(); it.hasNext();) {
         Object pair = it.next();
         if ((pair instanceof LogoList
             && ((LogoList) pair).size() < 2)
@@ -167,7 +168,7 @@ public class TableExtension
 
   public static class Clear extends DefaultCommand {
     public Syntax getSyntax() {
-      return Syntax.commandSyntax
+      return SyntaxJ.commandSyntax
           (new int[]{Syntax.WildcardType()});
     }
 
@@ -189,7 +190,7 @@ public class TableExtension
 
   public static class Get extends DefaultReporter {
     public Syntax getSyntax() {
-      return Syntax.reporterSyntax
+      return SyntaxJ.reporterSyntax
           (new int[]{Syntax.WildcardType(), Syntax.WildcardType()},
               Syntax.WildcardType());
     }
@@ -219,7 +220,7 @@ public class TableExtension
 
   public static class HasKey extends DefaultReporter {
     public Syntax getSyntax() {
-      return Syntax.reporterSyntax
+      return SyntaxJ.reporterSyntax
           (new int[]{Syntax.WildcardType(), Syntax.WildcardType()},
               Syntax.BooleanType());
     }
@@ -243,7 +244,7 @@ public class TableExtension
 
   public static class Keys extends DefaultReporter {
     public Syntax getSyntax() {
-      return Syntax.reporterSyntax
+      return SyntaxJ.reporterSyntax
           (new int[]{Syntax.WildcardType()},
               Syntax.ListType());
     }
@@ -266,7 +267,7 @@ public class TableExtension
 
   public static class Length extends DefaultReporter {
     public Syntax getSyntax() {
-      return Syntax.reporterSyntax
+      return SyntaxJ.reporterSyntax
           (new int[]{Syntax.WildcardType()},
               Syntax.NumberType());
     }
@@ -289,7 +290,7 @@ public class TableExtension
 
   public static class Make extends DefaultReporter {
     public Syntax getSyntax() {
-      return Syntax.reporterSyntax(Syntax.WildcardType());
+      return SyntaxJ.reporterSyntax(Syntax.WildcardType());
     }
 
     public String getAgentClassString() {
@@ -305,7 +306,7 @@ public class TableExtension
 
   public static class Put extends DefaultCommand {
     public Syntax getSyntax() {
-      return Syntax.commandSyntax
+      return SyntaxJ.commandSyntax
           (new int[]{Syntax.WildcardType(), Syntax.WildcardType(),
               Syntax.WildcardType()});
     }
@@ -335,7 +336,7 @@ public class TableExtension
 
   public static class Remove extends DefaultCommand {
     public Syntax getSyntax() {
-      return Syntax.commandSyntax
+      return SyntaxJ.commandSyntax
           (new int[]{Syntax.WildcardType(), Syntax.WildcardType()});
     }
 
@@ -357,7 +358,7 @@ public class TableExtension
 
   public static class ToList extends DefaultReporter {
     public Syntax getSyntax() {
-      return Syntax.reporterSyntax
+      return SyntaxJ.reporterSyntax
           (new int[]{Syntax.WildcardType()},
               Syntax.ListType());
     }
@@ -382,7 +383,7 @@ public class TableExtension
 
   public static class FromList extends DefaultReporter {
     public Syntax getSyntax() {
-      return Syntax.reporterSyntax
+      return SyntaxJ.reporterSyntax
           (new int[]{Syntax.ListType()},
               Syntax.WildcardType());
     }
@@ -398,7 +399,7 @@ public class TableExtension
     }
   }
 
-  public org.nlogo.api.ExtensionObject readExtensionObject(org.nlogo.api.ExtensionManager reader,
+  public org.nlogo.core.ExtensionObject readExtensionObject(org.nlogo.api.ExtensionManager reader,
                                                            String typeName, String value)
       throws org.nlogo.api.ExtensionException {
     try {
@@ -435,7 +436,7 @@ public class TableExtension
   }
 
   private static boolean containsOnlyValidKeys(LogoList list) {
-    for (Iterator<Object> it = list.iterator(); it.hasNext();) {
+    for (Iterator<Object> it = list.javaIterator(); it.hasNext();) {
       Object o = it.next();
       if (!isValidKey(o)) {
         return false;
