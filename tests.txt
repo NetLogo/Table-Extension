@@ -1,5 +1,6 @@
 TablesBasics
   extensions [ table ]
+  globals [glob1]
   O> set glob1 table:make
   O> table:put glob1 0 "testvalue"
   O> table:put glob1 "testkey" 1
@@ -16,6 +17,7 @@ TablesBasics
 
 TablesToFromList
   extensions [ table ]
+  globals [glob1 glob2]
   O> set glob1 [[1 2] ["key" "value"]]
   O> set glob2 table:from-list glob1
   table:get glob2 "key" => "value"
@@ -25,6 +27,7 @@ TablesToFromList
 
 TablesAllowableTypes
   extensions [ table ]
+  globals [glob1]
   O> set glob1 table:make
   O> table:put glob1 0 "number"
   O> table:put glob1 "foo" "string"
@@ -48,18 +51,21 @@ TablesAllowableTypes
 
 TablesAllowableTypes_2D
   extensions [ table ]
+  globals [glob1]
   O> set glob1 table:make
   O> crt 1
   O> table:put glob1 [patch-here] of turtle 0 "patch" => ERROR Extension exception: (patch 0 0) is not a valid table key (a table key may only be a number, a string, true or false, or a list whose items are valid keys)
 
 TablesAllowableTypes_3D
   extensions [ table ]
+  globals [glob1]
   O> set glob1 table:make
   O> crt 1
   O> table:put glob1 patch 0 0 0 "patch" => ERROR Extension exception: (patch 0 0 0) is not a valid table key (a table key may only be a number, a string, true or false, or a list whose items are valid keys)
 
 TablesEquality
   extensions [ table ]
+  globals [glob1 glob2]
   O> set glob1 table:make
   glob1 = 0 => false
   0 = glob1 => false
@@ -104,5 +110,6 @@ TablesEquality
 
 TablesOfTables
   extensions [ table ]
+  globals [glob1]
   O> set glob1 table:from-list ( list (list 0 table:from-list [[1 2] [3 4]]) )
   (word glob1) => "{{table: [[0 {{table: [[1 2] [3 4]]}}]]}}"
