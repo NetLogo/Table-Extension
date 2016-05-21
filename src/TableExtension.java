@@ -28,6 +28,7 @@ public class TableExtension
     primManager.addPrimitive("put", new Put());
     primManager.addPrimitive("remove", new Remove());
     primManager.addPrimitive("from-list", new FromList());
+    primManager.addPrimitive("counts", new Counts());
     primManager.addPrimitive("to-list", new ToList());
   }
 
@@ -398,6 +399,26 @@ public class TableExtension
       return new Table(alist);
     }
   }
+
+  public static class Counts implements Reporter {
+    public Syntax getSyntax() {
+      return SyntaxJ.reporterSyntax(new int[]{Syntax.ListType()}, Syntax.WildcardType());
+    }
+
+    public String getAgentClassString() {
+      return "OTPL";
+    }
+
+    public Object report(Argument args[], Context context) throws ExtensionException, LogoException {
+      LogoList lst = args[0].getList();
+      Table result = new Table();
+      for (Object obj : lst.javaIterable()) {
+        result.put(obj, 1.0 + (Double) result.getOrDefault(obj, 0.0));
+      }
+      return result;
+    }
+  }
+
 
   public org.nlogo.core.ExtensionObject readExtensionObject(org.nlogo.api.ExtensionManager reader,
                                                            String typeName, String value)
