@@ -66,6 +66,18 @@ print table:keys dict
 
 ## Primitives
 
+[`table:clear`](#tableclear)
+[`table:counts`](#tablecounts)
+[`table:from-list`](#tablefrom-list)
+[`table:get`](#tableget)
+[`table:has-key?`](#tablehas-key?)
+[`table:keys`](#tablekeys)
+[`table:length`](#tablelength)
+[`table:make`](#tablemake)
+[`table:put`](#tableput)
+[`table:remove`](#tableremove)
+[`table:to-list`](#tableto-list)
+
 
 ### `table:clear`
 
