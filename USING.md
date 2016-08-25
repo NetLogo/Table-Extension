@@ -39,6 +39,7 @@ and strings unless you're certain you want and need mutability.
 
 ### Example
 
+```NetLogo
 let dict table:make
 table:put dict "turtle" "cute"
 table:put dict "bunny" "cutest"
@@ -52,3 +53,4 @@ print table:get dict "leopard"
 => (error)
 print table:keys dict
 => ["turtle" "bunny"]
+```
