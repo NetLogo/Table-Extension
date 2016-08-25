@@ -83,15 +83,27 @@ print table:keys dict
 
 ### `table:clear`
 
+```NetLogo
+table:clear table
+```
+
 Removes all key-value pairs from *table*.
 
 
 ### `table:counts`
 
+```NetLogo
+table:counts list
+```
+
 Counts the occurrences of each element of the given list and reports the counts in a table.
 
 
 ### `table:from-list`
+
+```NetLogo
+table:from-list list
+```
 
 
 Reports a new table with the contents of *list*.
@@ -102,40 +114,72 @@ The first element in the pair is the key and the second element is the value.
 
 ### `table:get`
 
+```NetLogo
+table:get table key
+```
+
 Reports the value that *key* is mapped to in the table. Causes an error if there is no entry for the key.
 
 
 ### `table:has-key?`
+
+```NetLogo
+table:has-key? table key
+```
 
 Reports true if *key* has an entry in *table*.
 
 
 ### `table:keys`
 
+```NetLogo
+table:keys table
+```
+
 Reports a list of all the keys in *table*, in the same order the keys were inserted.
 
 
 ### `table:length`
+
+```NetLogo
+table:length table
+```
 
 Reports the number of entries in *table*.
 
 
 ### `table:make`
 
+```NetLogo
+table:make
+```
+
 Reports a new, empty table.
 
 
 ### `table:put`
+
+```NetLogo
+table:put table key value
+```
 
 Maps *key* to *value* in *table*. If an entry already exists in the table for the given key, it is replaced.
 
 
 ### `table:remove`
 
+```NetLogo
+table:remove table key
+```
+
 Removes the mapping in *table* for *key*.
 
 
 ### `table:to-list`
+
+```NetLogo
+table:to-list table
+```
 
 
 Reports a list with the content of <i>table</i>. The list will be a
