@@ -30,6 +30,7 @@ public class TableExtension
     primManager.addPrimitive("from-list", new FromList());
     primManager.addPrimitive("counts", new Counts());
     primManager.addPrimitive("to-list", new ToList());
+    primManager.addPrimitive("values", new Values());
   }
 
   private static java.util.WeakHashMap<Table, Long> tables = new java.util.WeakHashMap<Table, Long>();
@@ -95,6 +96,15 @@ public class TableExtension
         pair.add(entry.getKey());
         pair.add(entry.getValue());
         alist.add(pair.toLogoList());
+      }
+      return alist.toLogoList();
+    }
+
+    public LogoList valuesList() {
+      LogoListBuilder alist = new LogoListBuilder();
+      for (Iterator<java.util.Map.Entry<Object, Object>> entries = entrySet().iterator(); entries.hasNext();) {
+        java.util.Map.Entry<Object, Object> entry = entries.next();
+        alist.add(entry.getValue());
       }
       return alist.toLogoList();
     }
@@ -381,6 +391,28 @@ public class TableExtension
     }
   }
 
+    public static class Values implements Reporter {
+      public Syntax getSyntax() {
+        return SyntaxJ.reporterSyntax
+            (new int[]{Syntax.WildcardType()},
+                  Syntax.ListType());
+      }
+
+      public String getAgentClassString() {
+          return "OTPL";
+      }
+
+      public Object report(Argument args[], Context context)
+          throws ExtensionException, LogoException {
+        Object arg0 = args[0].get();
+        if (!(arg0 instanceof Table)) {
+          throw new org.nlogo.api.ExtensionException
+                  ("not a table: " +
+                          org.nlogo.api.Dump.logoObject(arg0));
+        }
+        return ((Table) arg0).valuesList();
+      }
+    }
 
   public static class FromList implements Reporter {
     public Syntax getSyntax() {
@@ -465,5 +497,6 @@ public class TableExtension
     }
     return true;
   }
+
 
 }

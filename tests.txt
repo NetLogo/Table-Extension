@@ -117,3 +117,21 @@ TablesOfTables
 TableCounts
   extensions [ table ]
   (word table:counts ["a" 0 "a" 4 [5] [5]]) => "{{table: [[\"a\" 2] [0 1] [4 1] [[5] 2]]}}"
+
+TableValues
+  extensions [ table ]
+  globals [ t ]
+  O> set t table:make
+  table:values t => []
+  O> table:put t 1 "a"
+  table:values t => ["a"]
+  O> table:put t 2 "b"
+  table:values t => ["a" "b"]
+  O> table:put t list 1 2 -1
+  table:values t => ["a" "b" -1]
+  O> table:put t "a" "testing values"
+  table:values t => ["a" "b" -1 "testing values"]
+  O> table:remove t 2
+  table:values t => ["a" -1 "testing values"]
+  O> table:put t -1 -1
+  table:values t => ["a" -1 "testing values" -1]

@@ -79,6 +79,7 @@ print table:keys dict
 [`table:put`](#tableput)
 [`table:remove`](#tableremove)
 [`table:to-list`](#tableto-list)
+[`table:values`](#tablevalues)
 
 
 ### `table:clear`
@@ -186,6 +187,17 @@ Reports a list with the content of <i>table</i>. The list will be a
 list of two element lists, or pairs. The first element in the pair is
 the key and the second element is the value. The keys appear in the
 same order they were inserted.
+
+
+### `table:values`
+
+```NetLogo
+table:values table
+```
+
+
+Reports a list with the entries of <i>table</i>. The entries will appear
+in the same order they were inserted, with duplicates included.
 
 
 ## Terms of Use
