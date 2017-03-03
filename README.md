@@ -72,6 +72,7 @@ print table:keys dict
 [`table:counts`](#tablecounts)
 [`table:from-list`](#tablefrom-list)
 [`table:get`](#tableget)
+[`table:get-or-default`](#tableget-or-default)
 [`table:has-key?`](#tablehas-key?)
 [`table:keys`](#tablekeys)
 [`table:length`](#tablelength)
@@ -120,6 +121,15 @@ table:get table key
 ```
 
 Reports the value that *key* is mapped to in the table. Causes an error if there is no entry for the key.
+
+
+### `table:get-or-default`
+
+```NetLogo
+table:get-or-default table key default-value
+```
+
+Reports the value that *key* is mapped to in the table. Reports the default-value if there is no entry for the key.
 
 
 ### `table:has-key?`
