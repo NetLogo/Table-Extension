@@ -9,9 +9,7 @@ import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Reporter;
-import org.nlogo.api.Reporter;
 import org.nlogo.core.CompilerException;
-import org.nlogo.api.LogoException;
 import org.nlogo.core.LogoList;
 import org.nlogo.core.Syntax;
 import org.nlogo.core.SyntaxJ;
@@ -345,12 +343,7 @@ public class TableExtension
                 org.nlogo.api.Dump.logoObject(arg0));
       }
       Object key = args[1].get();
-      if (!isValidKey(key)) {
-        throw new org.nlogo.api.ExtensionException
-            (org.nlogo.api.Dump.logoObject(key) + " is not a valid table key "
-                + "(a table key may only be a number, a string, true or false, or a list "
-                + "whose items are valid keys)");
-      }
+      ensureKeyValidity(key);
       ((Table) arg0).put(key, args[2].get());
     }
   }
@@ -485,6 +478,7 @@ public class TableExtension
           org.nlogo.agent.Agent agent = agentIter.next();
           childContext.agent = agent;
           Object group = classifier.report(childContext, new Object[0]);
+          ensureKeyValidity(group);
           res.computeIfAbsent(group, k -> new ArrayList<>()).add(agent);
         }
         res.forEach((k, v) ->
@@ -494,6 +488,7 @@ public class TableExtension
         LogoList lst = (LogoList) col;
         for (Object x : lst.toJava()) {
           Object group = classifier.report(context, new Object[] {x});
+          ensureKeyValidity(group);
           result.put(group, ((LogoList) result.getOrDefault(group, LogoList.Empty())).lput(x));
         }
       }
@@ -535,6 +530,16 @@ public class TableExtension
             key instanceof Boolean ||
             (key instanceof LogoList &&
                 containsOnlyValidKeys((LogoList) key));
+  }
+
+  private static void ensureKeyValidity(Object key) throws ExtensionException {
+    if (!isValidKey(key)) {
+      throw new org.nlogo.api.ExtensionException
+              (org.nlogo.api.Dump.logoObject(key) + " is not a valid table key "
+                      + "(a table key may only be a number, a string, true or false, or a list "
+                      + "whose items are valid keys)");
+
+    }
   }
 
   private static boolean containsOnlyValidKeys(LogoList list) {
