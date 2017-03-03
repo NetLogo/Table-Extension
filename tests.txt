@@ -135,3 +135,8 @@ TableValues
   table:values t => ["a" -1 "testing values"]
   O> table:put t -1 -1
   table:values t => ["a" -1 "testing values" -1]
+
+TableGetOrDefault
+  extensions [ table ]
+  table:get-or-default (table:from-list [[1 2]]) 1 3 => 2
+  table:get-or-default (table:from-list [[1 2]]) 2 3 => 3

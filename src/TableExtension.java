@@ -1,8 +1,13 @@
 package org.nlogo.extensions.table;
 
+import org.nlogo.api.Argument;
+import org.nlogo.api.Command;
+import org.nlogo.api.Context;
+import org.nlogo.api.ExtensionException;
+import org.nlogo.api.LogoException;
+import org.nlogo.api.LogoListBuilder;
+import org.nlogo.api.Reporter;
 import org.nlogo.core.CompilerException;
-import org.nlogo.api.LogoException;
-import org.nlogo.api.LogoException;
 import org.nlogo.core.LogoList;
 import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.ExtensionException;
@@ -21,6 +26,7 @@ public class TableExtension
   public void load(org.nlogo.api.PrimitiveManager primManager) {
     primManager.addPrimitive("clear", new Clear());
     primManager.addPrimitive("get", new Get());
+    primManager.addPrimitive("get-or-default", new GetOrDefault());
     primManager.addPrimitive("has-key?", new HasKey());
     primManager.addPrimitive("keys", new Keys());
     primManager.addPrimitive("length", new Length());
@@ -226,6 +232,26 @@ public class TableExtension
                 + " in table.");
       }
       return result;
+    }
+  }
+
+  public static class GetOrDefault implements Reporter {
+    public Syntax getSyntax() {
+      return SyntaxJ.reporterSyntax(
+              new int[] {Syntax.WildcardType(), Syntax.WildcardType(), Syntax.WildcardType()},
+              Syntax.WildcardType()
+      );
+    }
+
+    public Object report(Argument args[], Context context) throws ExtensionException {
+      Object table = args[0].get();
+      if (!(table instanceof Table)) {
+        throw new org.nlogo.api.ExtensionException
+                ("not a table: " +
+                        org.nlogo.api.Dump.logoObject(table));
+      }
+      Object key = args[1].get();
+      return ((Table) table).getOrDefault(key, args[2].get());
     }
   }
 
