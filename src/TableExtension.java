@@ -1,19 +1,28 @@
 package org.nlogo.extensions.table;
 
+import org.nlogo.agent.AgentIterator;
+import org.nlogo.api.AnonymousReporter;
+import org.nlogo.api.Argument;
+import org.nlogo.api.Command;
+import org.nlogo.api.Context;
+import org.nlogo.api.ExtensionException;
+import org.nlogo.api.LogoException;
+import org.nlogo.api.LogoListBuilder;
+import org.nlogo.api.Reporter;
+import org.nlogo.api.Reporter;
 import org.nlogo.core.CompilerException;
 import org.nlogo.api.LogoException;
-import org.nlogo.api.LogoException;
 import org.nlogo.core.LogoList;
-import org.nlogo.api.LogoListBuilder;
-import org.nlogo.api.ExtensionException;
-import org.nlogo.api.Argument;
 import org.nlogo.core.Syntax;
 import org.nlogo.core.SyntaxJ;
-import org.nlogo.api.Context;
-import org.nlogo.api.Reporter;
-import org.nlogo.api.Command;
+import org.nlogo.agent.AgentSet;
+import org.nlogo.nvm.ExtensionContext;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class TableExtension
     extends org.nlogo.api.DefaultClassManager {
@@ -31,6 +40,7 @@ public class TableExtension
     primManager.addPrimitive("counts", new Counts());
     primManager.addPrimitive("to-list", new ToList());
     primManager.addPrimitive("values", new Values());
+    primManager.addPrimitive("group-by", new GroupBy());
   }
 
   private static java.util.WeakHashMap<Table, Long> tables = new java.util.WeakHashMap<Table, Long>();
@@ -451,6 +461,45 @@ public class TableExtension
     }
   }
 
+  public static class GroupBy implements Reporter {
+    @Override
+    public Syntax getSyntax() {
+      return SyntaxJ.reporterSyntax(
+              new int[] {Syntax.ListType() | Syntax.AgentsetType(), Syntax.ReporterType() },
+              Syntax.WildcardType()
+      );
+    }
+
+    @Override
+    public Object report(Argument args[], Context context) throws ExtensionException, LogoException {
+      Object col = args[0].get();
+      AnonymousReporter classifier = args[1].getReporter();
+      Table result = new Table();
+      if (col instanceof AgentSet) {
+        Map<Object, List<org.nlogo.agent.Agent>> res = new HashMap<>();
+
+        AgentSet agents = ((AgentSet) col);
+        org.nlogo.nvm.Context childContext = new org.nlogo.nvm.Context(((ExtensionContext)context).nvmContext(), agents);
+        AgentIterator agentIter = agents.shufflerator(context.getRNG());
+        while (agentIter.hasNext()) {
+          org.nlogo.agent.Agent agent = agentIter.next();
+          childContext.agent = agent;
+          Object group = classifier.report(childContext, new Object[0]);
+          res.computeIfAbsent(group, k -> new ArrayList<>()).add(agent);
+        }
+        res.forEach((k, v) ->
+                result.put(k, AgentSet.fromArray(agents.kind(), v.toArray(new org.nlogo.agent.Agent[v.size()])))
+        );
+      } else {
+        LogoList lst = (LogoList) col;
+        for (Object x : lst.toJava()) {
+          Object group = classifier.report(context, new Object[] {x});
+          result.put(group, ((LogoList) result.getOrDefault(group, LogoList.Empty())).lput(x));
+        }
+      }
+      return result;
+    }
+  }
 
   public org.nlogo.core.ExtensionObject readExtensionObject(org.nlogo.api.ExtensionManager reader,
                                                            String typeName, String value)
