@@ -1,5 +1,6 @@
 package org.nlogo.extensions.table;
 
+import org.nlogo.agent.Agent;
 import org.nlogo.agent.AgentIterator;
 import org.nlogo.agent.AgentSet;
 import org.nlogo.agent.AgentSetBuilder;
@@ -36,7 +37,8 @@ public class TableExtension
     primManager.addPrimitive("counts", new Counts());
     primManager.addPrimitive("to-list", new ToList());
     primManager.addPrimitive("values", new Values());
-    primManager.addPrimitive("group-by", new GroupBy());
+    primManager.addPrimitive("group-items", new GroupItems());
+    primManager.addPrimitive("group-agents", new GroupAgents());
   }
 
   private static java.util.WeakHashMap<Table, Long> tables = new java.util.WeakHashMap<Table, Long>();
@@ -472,40 +474,54 @@ public class TableExtension
     }
   }
 
-  public static class GroupBy implements Reporter {
+  public static class GroupItems implements Reporter {
     @Override
     public Syntax getSyntax() {
       return SyntaxJ.reporterSyntax(
-              new int[] {Syntax.ListType() | Syntax.AgentsetType(), Syntax.ReporterType() },
+              new int[] {Syntax.ListType(), Syntax.ReporterType() },
               Syntax.WildcardType()
       );
     }
 
     @Override
     public Object report(Argument args[], Context context) throws ExtensionException, LogoException {
-      Object col = args[0].get();
+      LogoList lst = args[0].getList();
       AnonymousReporter classifier = args[1].getReporter();
       Table result = new Table();
-      if (col instanceof AgentSet) {
-        AgentSet agents = ((AgentSet) col);
-        org.nlogo.nvm.Context childContext = new org.nlogo.nvm.Context(((ExtensionContext)context).nvmContext(), agents);
-        AgentIterator agentIter = agents.shufflerator(context.getRNG());
-        while (agentIter.hasNext()) {
-          org.nlogo.agent.Agent agent = agentIter.next();
-          childContext.agent = agent;
-          Object group = classifier.report(childContext, new Object[0]);
-          ensureKeyValidity(group);
-          ((AgentSetBuilder) result.computeIfAbsent(group, k -> new AgentSetBuilder(agents.kind()))).add(agent);
-        }
-        result.replaceAll((k, v) -> ((AgentSetBuilder) v).build());
-      } else {
-        LogoList lst = (LogoList) col;
-        for (Object x : lst.toJava()) {
-          Object group = classifier.report(context, new Object[] {x});
-          ensureKeyValidity(group);
-          result.put(group, ((LogoList) result.getOrDefault(group, LogoList.Empty())).lput(x));
-        }
+      for (Object x : lst.toJava()) {
+        Object group = classifier.report(context, new Object[] {x});
+        ensureKeyValidity(group);
+        result.put(group, ((LogoList) result.getOrDefault(group, LogoList.Empty())).lput(x));
       }
+      return result;
+    }
+  }
+
+  public static class GroupAgents implements Reporter {
+    @Override
+    public Syntax getSyntax() {
+      return SyntaxJ.reporterSyntax(
+              new int[] {Syntax.AgentsetType(), Syntax.ReporterBlockType()},
+              Syntax.WildcardType(),
+              "OTPL",
+              "-TPL"
+      );
+    }
+
+    @Override
+    public Object report(Argument args[], Context context) throws ExtensionException, LogoException {
+      AgentSet agents = (AgentSet) args[0].getAgentSet();
+      org.nlogo.nvm.Reporter classifier = ((org.nlogo.nvm.Argument) args[1]).unevaluatedArgument();
+      org.nlogo.nvm.Context childContext = new org.nlogo.nvm.Context(((ExtensionContext) context).nvmContext(), agents);
+      AgentIterator agentIter = agents.shufflerator(context.getRNG());
+      Table result = new Table();
+      while (agentIter.hasNext()) {
+        Agent agent = agentIter.next();
+        Object group = childContext.evaluateReporter(agent, classifier);
+        ensureKeyValidity(group);
+        ((AgentSetBuilder) result.computeIfAbsent(group, k -> new AgentSetBuilder(agents.kind()))).add(agent);
+      }
+      result.replaceAll((k,v) -> ((AgentSetBuilder) v).build());
       return result;
     }
   }

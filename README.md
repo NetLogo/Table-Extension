@@ -70,7 +70,8 @@ print table:keys dict
 
 [`table:clear`](#tableclear)
 [`table:counts`](#tablecounts)
-[`table:group-by`](#tablegroup-by)
+[`table:group-agents`](#tablegroup-agents)
+[`table:group-items`](#tablegroup-items)
 [`table:from-list`](#tablefrom-list)
 [`table:get`](#tableget)
 [`table:get-or-default`](#tableget-or-default)
@@ -102,31 +103,46 @@ table:counts list
 Counts the occurrences of each element of the given list and reports the counts in a table.
 
 
-### `table:group-by`
+### `table:group-agents`
 
 ```NetLogo
-table:group-by agentset-or-list
+table:group-agents agentset anonymous reporter
 ```
 
 
-Groups the elements of the agentset or list based on the result of the reporter.
-The results of the reporter become the keys in the table.
-When grouping a list, each item of the list will be passed into the reporter as an argument and the values of table will be lists.
-When grouping an agentset, the agents will run the reporter.
+Groups the agents in the agentset based on the given reporter.
+Agents that report the same thing for reporter will be grouped together.
+The results of the reporter will be used as the keys in the resulting table and the groups will be agentsets.
 
-Example of running on a list:
-
-```
-observer> show table:group-by range 10 [ num -> num mod 3 ]
-observer: {{table: [[0 [0 3 6 9]] [1 [1 4 7]] [2 [2 5 8]]]}}
-```
-
-Example of running on an agentset:
+For example:
 
 ```
 observer> create-turtles 100 [ set color one-of [ red green blue ] ]
 observer> show table:group-by turtles [ color ]
 observer: {{table: [[105 (agentset, 38 turtles)] [55 (agentset, 32 turtles)] [15 (agentset, 30 turtles)]]}}
+```
+
+
+
+### `table:group-items`
+
+```NetLogo
+table:group-items list anonymous-reporter
+```
+
+
+Groups the items of the list bsaed on the given reporter.
+The reporter should take a single argument, which will be the items of the list.
+Items that report the same thing when passed to the reporter will be grouped together.
+The results of the reporter will be used as the keys in the resulting table and the groups will be lists.
+
+For example:
+
+
+```
+observer> show table:group-by range 10 [ num -> num mod 3 ]
+observer: {{table: [[0 [0 3 6 9]] [1 [1 4 7]] [2 [2 5 8]]]}}
+```
 
 
 
