@@ -1,6 +1,8 @@
 package org.nlogo.extensions.table;
 
 import org.nlogo.agent.AgentIterator;
+import org.nlogo.agent.AgentSet;
+import org.nlogo.agent.AgentSetBuilder;
 import org.nlogo.api.AnonymousReporter;
 import org.nlogo.api.Argument;
 import org.nlogo.api.Command;
@@ -11,20 +13,11 @@ import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Reporter;
 import org.nlogo.core.CompilerException;
 import org.nlogo.core.LogoList;
-import org.nlogo.api.LogoListBuilder;
-import org.nlogo.api.Reporter;
-import org.nlogo.core.CompilerException;
-import org.nlogo.core.LogoList;
 import org.nlogo.core.Syntax;
 import org.nlogo.core.SyntaxJ;
-import org.nlogo.agent.AgentSet;
 import org.nlogo.nvm.ExtensionContext;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class TableExtension
     extends org.nlogo.api.DefaultClassManager {
@@ -494,8 +487,6 @@ public class TableExtension
       AnonymousReporter classifier = args[1].getReporter();
       Table result = new Table();
       if (col instanceof AgentSet) {
-        Map<Object, List<org.nlogo.agent.Agent>> res = new HashMap<>();
-
         AgentSet agents = ((AgentSet) col);
         org.nlogo.nvm.Context childContext = new org.nlogo.nvm.Context(((ExtensionContext)context).nvmContext(), agents);
         AgentIterator agentIter = agents.shufflerator(context.getRNG());
@@ -504,11 +495,9 @@ public class TableExtension
           childContext.agent = agent;
           Object group = classifier.report(childContext, new Object[0]);
           ensureKeyValidity(group);
-          res.computeIfAbsent(group, k -> new ArrayList<>()).add(agent);
+          ((AgentSetBuilder) result.computeIfAbsent(group, k -> new AgentSetBuilder(agents.kind()))).add(agent);
         }
-        res.forEach((k, v) ->
-                result.put(k, AgentSet.fromArray(agents.kind(), v.toArray(new org.nlogo.agent.Agent[v.size()])))
-        );
+        result.replaceAll((k, v) -> ((AgentSetBuilder) v).build());
       } else {
         LogoList lst = (LogoList) col;
         for (Object x : lst.toJava()) {
