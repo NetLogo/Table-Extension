@@ -39,6 +39,7 @@ and strings unless you're certain you want and need mutability.
 
 ### Example
 
+{{! don't turn extension object into template variable }}{{= | | =}}
 ```NetLogo
 let dict table:make
 table:put dict "turtle" "cute"

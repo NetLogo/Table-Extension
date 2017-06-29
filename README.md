@@ -50,6 +50,7 @@ and strings unless you're certain you want and need mutability.
 
 ### Example
 
+
 ```NetLogo
 let dict table:make
 table:put dict "turtle" "cute"
@@ -115,6 +116,7 @@ Agents that report the same thing for reporter will be grouped together.
 The results of the reporter will be used as the keys in the resulting table and the groups will be agentsets.
 
 For example:
+
 
 ```
 observer> create-turtles 100 [ set color one-of [ red green blue ] ]
