@@ -67,6 +67,49 @@ print table:keys dict
 => ["turtle" "bunny"]
 ```
 
+### Manipulating Tables
+
+If the same key is used with `table:put` more than once for the same table, the value provided to *last* call of `table:put` will be the value shown when `table:get` is used.
+Here is an example:
+
+```NetLogo
+let dict table:make
+table:put dict "a" 5
+table:put dict "a" 3
+print table:get dict "a"
+=> 3
+```
+
+Because tables are mutable, manipulating existing values should be done by calling `table:get` or `table:get-or-default` on a key, transforming the returned value, and then calling `table:put` to update the transformed value in the table.
+Here is an example procedure which increments a value in a table at a given key.
+If the key doesn't exist, it puts a 1 at that key instead.
+
+```NetLogo
+to increment-table-value [ dict key ]
+  let i table:get-or-default dict key 0
+  table:put dict key i + 1
+end
+```
+
+### Key Restrictions
+
+Table keys are limited to the following NetLogo types:
+
+* Numbers
+* Strings
+* Booleans
+* Lists containing only elements which are themselves valid keys
+
+If you attempt to use an illegal value, the table extension will raise an exception, as shown in the following example.
+
+```NetLogo
+crt 1
+let dict table:make
+table:put dict (one-of turtles) 10
+;; Errors with the following message:
+;; (turtle 0) is not a valid table key (a table key may only be a number, a string, true or false, or a list whose items are valid keys)
+```
+
 ## Primitives
 
 [`table:clear`](#tableclear)
