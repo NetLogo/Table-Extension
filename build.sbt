@@ -2,6 +2,8 @@ enablePlugins(org.nlogo.build.NetLogoExtension, org.nlogo.build.ExtensionDocumen
 
 name := "table"
 
+version := "1.3.0"
+
 netLogoClassManager := "org.nlogo.extensions.table.TableExtension"
 
 netLogoTarget :=
