@@ -91,6 +91,44 @@ to increment-table-value [ dict key ]
 end
 ```
 
+As `increment-table-value` shows, when a table is given as an input for a procedure, modifications made to it with `table:put`, `table:remove`, or `table:clear` are reflected in the original value outside of the procedure.  This is different behavior than with list values, which are immutable and so cannot be changed when given as inputs.  Caution needs to be exercised when using `let` or `set`, as they can give a different variable name to the same table.  If you change the value for a key in the table using one variable, any other variables assigned that same table will also reflect the change.
+
+```NetLogo
+let dict table:make
+table:put dict "a" 5
+let alt dict
+table:put alt "a" 3
+print table:get dict "a"
+=> 3 ; changed because `dict` and `alt` refer to the same table
+print table:get alt "a"
+=> 3
+```
+
+If you want to create a copy of a table instead of assigning the same table to multiple variable names, here is a simple reporter for creating a duplicate table from an existing one:
+
+```NetLogo
+to-report copy-table [ orig ]
+  let copy table:make
+  foreach ( table:keys orig ) [
+    [key] -> table:put copy key ( table:get orig key )
+  ]
+  report copy
+end
+```
+
+And here is a sample usage of the `copy-table` reporter:
+
+```NetLogo
+let dict table:make
+table:put dict "a" 5
+let alt copy-table dict
+table:put alt "a" 3
+print table:get dict "a"
+=> 5 ; `dict` is not changed because we created a new table copy for `alt`
+print table:get alt "a"
+=> 3
+```
+
 ### Key Restrictions
 
 Table keys are limited to the following NetLogo types:
@@ -163,7 +201,7 @@ For example:
 
 ```
 observer> create-turtles 100 [ set color one-of [ red green blue ] ]
-observer> show table:group-by turtles [ color ]
+observer> show table:group-agents turtles [ color ]
 observer: {{table: [[105 (agentset, 38 turtles)] [55 (agentset, 32 turtles)] [15 (agentset, 30 turtles)]]}}
 ```
 
@@ -185,7 +223,7 @@ For example:
 
 
 ```
-observer> show table:group-by range 10 [ num -> num mod 3 ]
+observer> show table:group-items range 10 [ num -> num mod 3 ]
 observer: {{table: [[0 [0 3 6 9]] [1 [1 4 7]] [2 [2 5 8]]]}}
 ```
 
