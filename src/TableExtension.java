@@ -17,8 +17,20 @@ import org.nlogo.core.LogoList;
 import org.nlogo.core.Syntax;
 import org.nlogo.core.SyntaxJ;
 import org.nlogo.nvm.ExtensionContext;
+import org.nlogo.nvm.FileManager;
 
 import java.util.Iterator;
+
+import java.io.File;
+import java.io.FileReader;
+import com.google.gson.Gson;
+
+// import org.json.JSONObject;
+// import org.json.JSONTokener;
+// import org.json.JSONParser;
+// import com.typesafe.config.ConfigFactory;
+// import com.typesafe.config.Config;
+
 
 public class TableExtension
     extends org.nlogo.api.DefaultClassManager {
@@ -39,6 +51,7 @@ public class TableExtension
     primManager.addPrimitive("values", new Values());
     primManager.addPrimitive("group-items", new GroupItems());
     primManager.addPrimitive("group-agents", new GroupAgents());
+    primManager.addPrimitive("from-json", new FromJSON());
   }
 
   private static java.util.WeakHashMap<Table, Long> tables = new java.util.WeakHashMap<Table, Long>();
@@ -90,6 +103,17 @@ public class TableExtension
       this.id = id;
       tables.put(this, id);
       next = StrictMath.max(next, id + 1);
+    }
+
+    public Table(java.util.Map<Object,Object> map) {
+      tables.put(this, next);
+      id = next;
+      next++;
+
+      for (java.util.Map.Entry<Object,Object> entry : map.entrySet()) {
+        this.put(entry.getKey(), entry.getValue());
+      }
+
     }
 
     public boolean equals(Object obj) {
@@ -154,7 +178,7 @@ public class TableExtension
       }
       return true;
     }
-  }
+  }  // closing bracked for implements
 
   public void clearAll() {
     tables.clear();
@@ -339,6 +363,45 @@ public class TableExtension
     public Object report(Argument args[], Context context)
         throws ExtensionException, LogoException {
       return new Table();
+    }
+
+  }
+
+  public static class FromJSON implements Reporter {
+    public Syntax getSyntax() {
+      return SyntaxJ.reporterSyntax
+          (new int[]{Syntax.StringType()},
+              Syntax.WildcardType());
+    }
+
+    public String getAgentClassString() {
+      return "OTPL";
+    }
+
+    public Object report(Argument args[], Context context)
+        throws ExtensionException, LogoException {
+
+      FileManager fm = ((ExtensionContext) context).workspace().fileManager();
+
+      try {
+        String path = fm.attachPrefix(args[0].getString());
+        File file = new File(path.toString());
+        // InputStream is = ReadJSONString.class.getResourceAsStream(path);
+        if (!file.exists()) {
+          throw new ExtensionException (args[0].get().toString() + " does not exist.");
+        }
+
+        Gson gson = new Gson();
+        // Object object = gson.fromJson(new FileReader(path), Object.class);
+        java.util.Map<Object,Object> map = gson.fromJson(new FileReader(path), java.util.Map.class);
+
+        return new Table(map);
+        // return map.toString();
+
+      } catch (java.io.IOException e) {
+        throw new ExtensionException(e.getMessage());
+      }
+
     }
 
   }
