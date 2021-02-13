@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.io.File;
 import java.io.FileReader;
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 
 // import org.json.JSONObject;
 // import org.json.JSONTokener;
@@ -111,7 +112,15 @@ public class TableExtension
       next++;
 
       for (java.util.Map.Entry<Object,Object> entry : map.entrySet()) {
-        this.put(entry.getKey(), entry.getValue());
+        // if (entry.getValue() instanceof java.util.ArrayList) {
+        //   this.put(entry.getKey(), (LogoList) entry.getValue());
+
+        if (entry.getValue() instanceof LinkedTreeMap) {
+          this.put(entry.getKey(), new Table((java.util.Map)entry.getValue()));
+        } else {
+          this.put(entry.getKey(), entry.getValue());
+        }
+
       }
 
     }
