@@ -20,6 +20,7 @@ import org.nlogo.nvm.ExtensionContext;
 import org.nlogo.nvm.FileManager;
 
 import java.util.Iterator;
+import java.util.ArrayList;
 
 import java.io.File;
 import java.io.FileReader;
@@ -112,17 +113,23 @@ public class TableExtension
       next++;
 
       for (java.util.Map.Entry<Object,Object> entry : map.entrySet()) {
-        // if (entry.getValue() instanceof java.util.ArrayList) {
-        //   this.put(entry.getKey(), (LogoList) entry.getValue());
-
-        if (entry.getValue() instanceof LinkedTreeMap) {
-          this.put(entry.getKey(), new Table((java.util.Map)entry.getValue()));
-        } else {
-          this.put(entry.getKey(), entry.getValue());
-        }
-
+        this.put(entry.getKey(), getTableValue(entry.getValue()));
       }
+    }
 
+    private Object getTableValue(Object getValue) {
+      // return the value to be added in a table being constructed from a Map
+      if (getValue instanceof LinkedTreeMap) {
+        return new Table((java.util.Map)getValue);
+      } else if (getValue instanceof ArrayList) {
+        LogoListBuilder alist = new LogoListBuilder();
+        ((ArrayList)getValue).forEach((temp) -> {
+          alist.add(getTableValue(temp));
+        });
+        return alist.toLogoList();
+      } else {
+        return getValue;
+      }
     }
 
     public boolean equals(Object obj) {
@@ -395,24 +402,16 @@ public class TableExtension
       try {
         String path = fm.attachPrefix(args[0].getString());
         File file = new File(path.toString());
-        // InputStream is = ReadJSONString.class.getResourceAsStream(path);
         if (!file.exists()) {
           throw new ExtensionException (args[0].get().toString() + " does not exist.");
         }
-
         Gson gson = new Gson();
-        // Object object = gson.fromJson(new FileReader(path), Object.class);
         java.util.Map<Object,Object> map = gson.fromJson(new FileReader(path), java.util.Map.class);
-
         return new Table(map);
-        // return map.toString();
-
       } catch (java.io.IOException e) {
         throw new ExtensionException(e.getMessage());
       }
-
     }
-
   }
 
   public static class Put implements Command {

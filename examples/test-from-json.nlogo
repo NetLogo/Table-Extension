@@ -1,4 +1,3 @@
-
 extensions [table]
 
 globals [t]

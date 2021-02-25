@@ -6,3 +6,4 @@ target/
 /project/project
 .bundledFiles
 .DS_Store 
+examples/
