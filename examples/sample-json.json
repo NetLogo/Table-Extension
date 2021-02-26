@@ -8,7 +8,7 @@
   },
   "bool": false,
   "bool2": true,
-  "friends": [{"name": "R", "job": "person"}, {"name": "G", "job": "traitor", "fiends":[]}],
+  "friends": [{"name": "R", "job": "person"}, {"name": "G", "job": "traitor", "friends":[]}],
   "foods": ["apples", "stones"],
-  "book-list-list": [["vampires"], ["cool things", "less cool things"]]
+  "book-lists-list": [["vampires"], ["cool book", "less cool book"]]
 }

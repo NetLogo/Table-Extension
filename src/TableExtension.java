@@ -406,8 +406,14 @@ public class TableExtension
           throw new ExtensionException (args[0].get().toString() + " does not exist.");
         }
         Gson gson = new Gson();
-        java.util.Map<Object,Object> map = gson.fromJson(new FileReader(path), java.util.Map.class);
-        return new Table(map);
+
+        try {
+          java.util.Map<Object,Object> map = gson.fromJson(new FileReader(path), java.util.Map.class);
+          return new Table(map);
+        } catch (com.google.gson.JsonSyntaxException e) {
+          throw new ExtensionException ("Error trying to read the JSON file. It is probably missing a colon or comma. See the line number on the next line: " + e.getMessage());
+        }
+
       } catch (java.io.IOException e) {
         throw new ExtensionException(e.getMessage());
       }
