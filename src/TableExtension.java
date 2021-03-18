@@ -60,7 +60,7 @@ public class TableExtension
     primManager.addPrimitive("values", new Values());
     primManager.addPrimitive("group-items", new GroupItems());
     primManager.addPrimitive("group-agents", new GroupAgents());
-    primManager.addPrimitive("from-json", new FromJSON());
+    primManager.addPrimitive("from-json-file", new FromJSONFile());
   }
 
   private static WeakHashMap<Table, Long> tables = new WeakHashMap<Table, Long>();
@@ -390,7 +390,7 @@ public class TableExtension
 
   }
 
-  public static class FromJSON implements Reporter {
+  public static class FromJSONFile implements Reporter {
     public Syntax getSyntax() {
       return SyntaxJ.reporterSyntax
           (new int[]{Syntax.StringType()},

@@ -3,7 +3,7 @@ extensions [table]
 globals [t]
 
 to test-from-json
-  set t table:from-json "sample-json.json"
+  set t table:from-json-file "sample-json.json"
   show t
 end
 @#$#@#$#@
