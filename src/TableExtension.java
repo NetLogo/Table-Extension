@@ -21,11 +21,18 @@ import org.nlogo.nvm.FileManager;
 
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.WeakHashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.List;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.JsonSyntaxException;
 
 // import org.json.JSONObject;
 // import org.json.JSONTokener;
@@ -56,7 +63,7 @@ public class TableExtension
     primManager.addPrimitive("from-json", new FromJSON());
   }
 
-  private static java.util.WeakHashMap<Table, Long> tables = new java.util.WeakHashMap<Table, Long>();
+  private static WeakHashMap<Table, Long> tables = new WeakHashMap<Table, Long>();
 
   private static long next = 0;
 
@@ -67,7 +74,7 @@ public class TableExtension
   // crossplatform.
 
   public static class Table
-      extends java.util.LinkedHashMap<Object, Object>
+      extends LinkedHashMap<Object, Object>
       // new NetLogo data types defined by extensions must implement
       // this interface
       implements org.nlogo.core.ExtensionObject {
@@ -107,12 +114,12 @@ public class TableExtension
       next = StrictMath.max(next, id + 1);
     }
 
-    public Table(java.util.Map<Object,Object> map) {
+    public Table(Map<Object,Object> map) {
       tables.put(this, next);
       id = next;
       next++;
 
-      for (java.util.Map.Entry<Object,Object> entry : map.entrySet()) {
+      for (Map.Entry<Object,Object> entry : map.entrySet()) {
         this.put(entry.getKey(), getTableValue(entry.getValue()));
       }
     }
@@ -120,7 +127,7 @@ public class TableExtension
     private Object getTableValue(Object getValue) {
       // return the value to be added in a table being constructed from a Map
       if (getValue instanceof LinkedTreeMap) {
-        return new Table((java.util.Map)getValue);
+        return new Table((Map)getValue);
       } else if (getValue instanceof ArrayList) {
         LogoListBuilder alist = new LogoListBuilder();
         ((ArrayList)getValue).forEach((temp) -> {
@@ -138,8 +145,8 @@ public class TableExtension
 
     public LogoList toList() {
       LogoListBuilder alist = new LogoListBuilder();
-      for (Iterator<java.util.Map.Entry<Object, Object>> entries = entrySet().iterator(); entries.hasNext();) {
-        java.util.Map.Entry<Object, Object> entry = entries.next();
+      for (Iterator<Map.Entry<Object, Object>> entries = entrySet().iterator(); entries.hasNext();) {
+        Map.Entry<Object, Object> entry = entries.next();
         LogoListBuilder pair = new LogoListBuilder();
         pair.add(entry.getKey());
         pair.add(entry.getValue());
@@ -150,8 +157,8 @@ public class TableExtension
 
     public LogoList valuesList() {
       LogoListBuilder alist = new LogoListBuilder();
-      for (Iterator<java.util.Map.Entry<Object, Object>> entries = entrySet().iterator(); entries.hasNext();) {
-        java.util.Map.Entry<Object, Object> entry = entries.next();
+      for (Iterator<Map.Entry<Object, Object>> entries = entrySet().iterator(); entries.hasNext();) {
+        Map.Entry<Object, Object> entry = entries.next();
         alist.add(entry.getValue());
       }
       return alist.toLogoList();
@@ -211,7 +218,7 @@ public class TableExtension
     return buffer;
   }
 
-  public void importWorld(java.util.List<String[]> lines, org.nlogo.api.ExtensionManager reader,
+  public void importWorld(List<String[]> lines, org.nlogo.api.ExtensionManager reader,
                           org.nlogo.api.ImportErrorHandler handler)
       throws ExtensionException {
     for (String[] line : lines) {
@@ -408,13 +415,13 @@ public class TableExtension
         Gson gson = new Gson();
 
         try {
-          java.util.Map<Object,Object> map = gson.fromJson(new FileReader(path), java.util.Map.class);
+          Map<Object,Object> map = gson.fromJson(new FileReader(path), Map.class);
           return new Table(map);
-        } catch (com.google.gson.JsonSyntaxException e) {
+        } catch (JsonSyntaxException e) {
           throw new ExtensionException ("Error trying to read the JSON file. It is probably missing a colon or comma. See the line number on the next line: " + e.getMessage());
         }
 
-      } catch (java.io.IOException e) {
+      } catch (IOException e) {
         throw new ExtensionException(e.getMessage());
       }
     }
