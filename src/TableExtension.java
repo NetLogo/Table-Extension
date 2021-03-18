@@ -109,12 +109,12 @@ public class TableExtension
       next = StrictMath.max(next, id + 1);
     }
 
-    public Table(Map<Object,Object> map) {
+    public Table(Map<?,?> map) {
       tables.put(this, next);
       id = next;
       next++;
 
-      for (Map.Entry<Object,Object> entry : map.entrySet()) {
+      for (Map.Entry<?,?> entry : map.entrySet()) {
         this.put(entry.getKey(), getTableValue(entry.getValue()));
       }
     }
@@ -122,7 +122,7 @@ public class TableExtension
     private Object getTableValue(Object value) {
       // return the value to be added in a table being constructed from a Map
       if (value instanceof LinkedTreeMap) {
-        return new Table((Map)value);
+        return new Table((Map<?,?>)value);
       } else if (value instanceof ArrayList) {
         LogoListBuilder alist = new LogoListBuilder();
         ((ArrayList)value).forEach((temp) -> {
