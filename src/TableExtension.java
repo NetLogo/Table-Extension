@@ -34,11 +34,6 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.JsonSyntaxException;
 
-// import org.json.JSONObject;
-// import org.json.JSONTokener;
-// import org.json.JSONParser;
-// import com.typesafe.config.ConfigFactory;
-// import com.typesafe.config.Config;
 
 
 public class TableExtension
@@ -124,18 +119,18 @@ public class TableExtension
       }
     }
 
-    private Object getTableValue(Object getValue) {
+    private Object getTableValue(Object value) {
       // return the value to be added in a table being constructed from a Map
-      if (getValue instanceof LinkedTreeMap) {
-        return new Table((Map)getValue);
-      } else if (getValue instanceof ArrayList) {
+      if (value instanceof LinkedTreeMap) {
+        return new Table((Map)value);
+      } else if (value instanceof ArrayList) {
         LogoListBuilder alist = new LogoListBuilder();
-        ((ArrayList)getValue).forEach((temp) -> {
+        ((ArrayList)value).forEach((temp) -> {
           alist.add(getTableValue(temp));
         });
         return alist.toLogoList();
       } else {
-        return getValue;
+        return value;
       }
     }
 
@@ -410,7 +405,7 @@ public class TableExtension
         String path = fm.attachPrefix(args[0].getString());
         File file = new File(path.toString());
         if (!file.exists()) {
-          throw new ExtensionException (args[0].get().toString() + " does not exist.");
+          throw new ExtensionException(args[0].get().toString() + " does not exist.");
         }
         Gson gson = new Gson();
 
@@ -418,7 +413,7 @@ public class TableExtension
           Map<Object,Object> map = gson.fromJson(new FileReader(path), Map.class);
           return new Table(map);
         } catch (JsonSyntaxException e) {
-          throw new ExtensionException ("Error trying to read the JSON file. It is probably missing a colon or comma. See the line number on the next line: " + e.getMessage());
+          throw new ExtensionException("Error trying to read the JSON file. It is probably missing a colon or comma. See the line number on the next line: " + e.getMessage());
         }
 
       } catch (IOException e) {
