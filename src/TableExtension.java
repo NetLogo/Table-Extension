@@ -125,7 +125,7 @@ public class TableExtension
         return new Table((Map<?,?>)value);
       } else if (value instanceof ArrayList) {
         LogoListBuilder alist = new LogoListBuilder();
-        ((ArrayList)value).forEach((temp) -> {
+        ((ArrayList<?>)value).forEach((temp) -> {
           alist.add(getTableValue(temp));
         });
         return alist.toLogoList();
@@ -410,7 +410,7 @@ public class TableExtension
         Gson gson = new Gson();
 
         try {
-          Map<Object,Object> map = gson.fromJson(new FileReader(path), Map.class);
+          Map<?,?> map = gson.fromJson(new FileReader(path), Map.class);
           return new Table(map);
         } catch (JsonSyntaxException e) {
           throw new ExtensionException("Error trying to read the JSON file. It is probably missing a colon or comma. See the line number on the next line: " + e.getMessage());
