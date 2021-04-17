@@ -155,6 +155,7 @@ table:put dict (one-of turtles) 10
 [`table:group-agents`](#tablegroup-agents)
 [`table:group-items`](#tablegroup-items)
 [`table:from-list`](#tablefrom-list)
+[`table:from-json-file`](#tablefrom-json-file)
 [`table:get`](#tableget)
 [`table:get-or-default`](#tableget-or-default)
 [`table:has-key?`](#tablehas-key?)
@@ -214,7 +215,7 @@ table:group-items list anonymous-reporter
 ```
 
 
-Groups the items of the list bsaed on the given reporter.
+Groups the items of the list based on the given reporter.
 The reporter should take a single argument, which will be the items of the list.
 Items that report the same thing when passed to the reporter will be grouped together.
 The results of the reporter will be used as the keys in the resulting table and the groups will be lists.
@@ -240,6 +241,19 @@ Reports a new table with the contents of *list*.
 *list* must be a list of two element lists, or pairs.
 The first element in the pair is the key and the second element is the value.
 
+
+
+### `table:from-json-file`
+
+```NetLogo
+table:from-json-file filename
+```
+
+
+    Reads in the JSON object from *filename.json*, converts it to a table and reports the table.
+    The JSON object in *filename.json* must be an object, not an array (i.e. the outmost characters of the file must be `{` and `}`, not `[` and `]`),
+    but there can be arrays inside the JSON object which will be converted to NetLogo lists.
+    
 
 
 ### `table:get`
