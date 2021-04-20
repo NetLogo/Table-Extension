@@ -135,7 +135,7 @@ TableValues
   table:values t => ["a" -1 "testing values"]
   O> table:put t -1 -1
   table:values t => ["a" -1 "testing values" -1]
-  
+
 TableGroupItems
   extensions [ table ]
   (word table:group-items range 10 [ n -> n mod 2 ]) => "{{table: [[0 [0 2 4 6 8]] [1 [1 3 5 7 9]]]}}"
@@ -155,3 +155,17 @@ TableGetOrDefault
   extensions [ table ]
   table:get-or-default (table:from-list [[1 2]]) 1 3 => 2
   table:get-or-default (table:from-list [[1 2]]) 2 3 => 3
+
+TableFromJSONFile
+  extensions [ table ]
+  globals [ t ]
+  O> set t table:from-json-file "extensions/table/examples/sample-json.json"
+  table:get t "name" => "Ploni"
+  table:get t "age" => 31
+  table:get t "job" = table:from-list (list (list "b" "yes") (list "a" "very")) => true
+  table:get t "bool" => false
+  table:get t "bool2" => true
+  last table:get t "friends" = table:from-list (list (list "name" "G") (list "job" "traitor") (list "friends" (list))) => true
+  table:get t "foods" = list "apples" "stones" => true
+  table:get t "book-lists-list" = (list (list "vampires") (list "cool book" "less cool book" )) => true
+  table:from-json-file "extensions/table/examples/sample-malformed-json.json" => ERROR Extension exception: Error trying to read the JSON file. It is probably missing a colon or comma. See the line number on the next line: com.google.gson.stream.MalformedJsonException: Expected ':' at line 5 column 10 path $.

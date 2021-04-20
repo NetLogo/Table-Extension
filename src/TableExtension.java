@@ -17,8 +17,24 @@ import org.nlogo.core.LogoList;
 import org.nlogo.core.Syntax;
 import org.nlogo.core.SyntaxJ;
 import org.nlogo.nvm.ExtensionContext;
+import org.nlogo.nvm.FileManager;
 
 import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.WeakHashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.List;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.JsonSyntaxException;
+
+
 
 public class TableExtension
     extends org.nlogo.api.DefaultClassManager {
@@ -39,9 +55,10 @@ public class TableExtension
     primManager.addPrimitive("values", new Values());
     primManager.addPrimitive("group-items", new GroupItems());
     primManager.addPrimitive("group-agents", new GroupAgents());
+    primManager.addPrimitive("from-json-file", new FromJSONFile());
   }
 
-  private static java.util.WeakHashMap<Table, Long> tables = new java.util.WeakHashMap<Table, Long>();
+  private static WeakHashMap<Table, Long> tables = new WeakHashMap<Table, Long>();
 
   private static long next = 0;
 
@@ -52,7 +69,7 @@ public class TableExtension
   // crossplatform.
 
   public static class Table
-      extends java.util.LinkedHashMap<Object, Object>
+      extends LinkedHashMap<Object, Object>
       // new NetLogo data types defined by extensions must implement
       // this interface
       implements org.nlogo.core.ExtensionObject {
@@ -92,14 +109,39 @@ public class TableExtension
       next = StrictMath.max(next, id + 1);
     }
 
+    public Table(Map<?,?> map) {
+      tables.put(this, next);
+      id = next;
+      next++;
+
+      for (Map.Entry<?,?> entry : map.entrySet()) {
+        this.put(entry.getKey(), getTableValue(entry.getValue()));
+      }
+    }
+
+    private Object getTableValue(Object value) {
+      // return the value to be added in a table being constructed from a Map
+      if (value instanceof LinkedTreeMap) {
+        return new Table((Map<?,?>)value);
+      } else if (value instanceof ArrayList) {
+        LogoListBuilder alist = new LogoListBuilder();
+        ((ArrayList<?>)value).forEach((temp) -> {
+          alist.add(getTableValue(temp));
+        });
+        return alist.toLogoList();
+      } else {
+        return value;
+      }
+    }
+
     public boolean equals(Object obj) {
       return this == obj;
     }
 
     public LogoList toList() {
       LogoListBuilder alist = new LogoListBuilder();
-      for (Iterator<java.util.Map.Entry<Object, Object>> entries = entrySet().iterator(); entries.hasNext();) {
-        java.util.Map.Entry<Object, Object> entry = entries.next();
+      for (Iterator<Map.Entry<Object, Object>> entries = entrySet().iterator(); entries.hasNext();) {
+        Map.Entry<Object, Object> entry = entries.next();
         LogoListBuilder pair = new LogoListBuilder();
         pair.add(entry.getKey());
         pair.add(entry.getValue());
@@ -110,8 +152,8 @@ public class TableExtension
 
     public LogoList valuesList() {
       LogoListBuilder alist = new LogoListBuilder();
-      for (Iterator<java.util.Map.Entry<Object, Object>> entries = entrySet().iterator(); entries.hasNext();) {
-        java.util.Map.Entry<Object, Object> entry = entries.next();
+      for (Iterator<Map.Entry<Object, Object>> entries = entrySet().iterator(); entries.hasNext();) {
+        Map.Entry<Object, Object> entry = entries.next();
         alist.add(entry.getValue());
       }
       return alist.toLogoList();
@@ -154,7 +196,7 @@ public class TableExtension
       }
       return true;
     }
-  }
+  }  // closing bracked for implements
 
   public void clearAll() {
     tables.clear();
@@ -171,7 +213,7 @@ public class TableExtension
     return buffer;
   }
 
-  public void importWorld(java.util.List<String[]> lines, org.nlogo.api.ExtensionManager reader,
+  public void importWorld(List<String[]> lines, org.nlogo.api.ExtensionManager reader,
                           org.nlogo.api.ImportErrorHandler handler)
       throws ExtensionException {
     for (String[] line : lines) {
@@ -341,6 +383,43 @@ public class TableExtension
       return new Table();
     }
 
+  }
+
+  public static class FromJSONFile implements Reporter {
+    public Syntax getSyntax() {
+      return SyntaxJ.reporterSyntax
+          (new int[]{Syntax.StringType()},
+              Syntax.WildcardType());
+    }
+
+    public String getAgentClassString() {
+      return "OTPL";
+    }
+
+    public Object report(Argument args[], Context context)
+        throws ExtensionException, LogoException {
+
+      FileManager fm = ((ExtensionContext) context).workspace().fileManager();
+
+      try {
+        String path = fm.attachPrefix(args[0].getString());
+        File file = new File(path.toString());
+        if (!file.exists()) {
+          throw new ExtensionException(args[0].get().toString() + " does not exist.");
+        }
+        Gson gson = new Gson();
+
+        try {
+          Map<?,?> map = gson.fromJson(new FileReader(path), Map.class);
+          return new Table(map);
+        } catch (JsonSyntaxException e) {
+          throw new ExtensionException("Error trying to read the JSON file. It is probably missing a colon or comma. See the line number on the next line: " + e.getMessage());
+        }
+
+      } catch (IOException e) {
+        throw new ExtensionException(e.getMessage());
+      }
+    }
   }
 
   public static class Put implements Command {

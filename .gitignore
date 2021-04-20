@@ -1,7 +1,8 @@
 /classes
-/table.jar
+/*.jar
 /table.jar.pack.gz
 /table.zip
 target/
 /project/project
 .bundledFiles
+.DS_Store 
