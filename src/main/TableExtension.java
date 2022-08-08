@@ -9,32 +9,19 @@ import org.nlogo.api.Argument;
 import org.nlogo.api.Command;
 import org.nlogo.api.Context;
 import org.nlogo.api.ExtensionException;
+import org.nlogo.api.Dump;
 import org.nlogo.api.LogoException;
-import org.nlogo.api.LogoListBuilder;
 import org.nlogo.api.Reporter;
 import org.nlogo.core.CompilerException;
+import org.nlogo.core.ExtensionObject;
 import org.nlogo.core.LogoList;
 import org.nlogo.core.Syntax;
 import org.nlogo.core.SyntaxJ;
 import org.nlogo.nvm.ExtensionContext;
-import org.nlogo.nvm.FileManager;
 
 import java.util.Iterator;
-import java.util.ArrayList;
 import java.util.WeakHashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.List;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-
-import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
-import com.google.gson.JsonSyntaxException;
-
-
 
 public class TableExtension
     extends org.nlogo.api.DefaultClassManager {
@@ -55,160 +42,23 @@ public class TableExtension
     primManager.addPrimitive("values", new Values());
     primManager.addPrimitive("group-items", new GroupItems());
     primManager.addPrimitive("group-agents", new GroupAgents());
-    primManager.addPrimitive("from-json-file", new FromJSONFile());
+    primManager.addPrimitive("from-json-file", new JsonPrims.FromJsonFile());
+    primManager.addPrimitive("from-json", new JsonPrims.FromJson());
+    primManager.addPrimitive("to-json", new JsonPrims.ToJson());
   }
-
-  private static WeakHashMap<Table, Long> tables = new WeakHashMap<Table, Long>();
-
-  private static long next = 0;
-
-  ///
-
-  // It's important that we extend LinkedHashMap here, rather than
-  // plain HashMap, because we want model results to be reproducible
-  // crossplatform.
-
-  public static class Table
-      extends LinkedHashMap<Object, Object>
-      // new NetLogo data types defined by extensions must implement
-      // this interface
-      implements org.nlogo.core.ExtensionObject {
-    private final long id;
-
-    public Table() {
-      tables.put(this, next);
-      id = next;
-      next++;
-    }
-
-    public Table(LogoList alist)
-        throws org.nlogo.api.ExtensionException {
-      this();
-      addAll(alist);
-    }
-
-    public void addAll(LogoList alist)
-        throws ExtensionException {
-      for (Iterator<Object> it = alist.javaIterator(); it.hasNext();) {
-        Object pair = it.next();
-        if ((pair instanceof LogoList
-            && ((LogoList) pair).size() < 2)
-            || (!(pair instanceof LogoList))) {
-          throw new org.nlogo.api.ExtensionException
-              ("expected a two-element list: " +
-                  org.nlogo.api.Dump.logoObject(pair));
-        }
-        this.put(((LogoList) pair).first(),
-            ((LogoList) pair).butFirst().first());
-      }
-    }
-
-    public Table(long id) {
-      this.id = id;
-      tables.put(this, id);
-      next = StrictMath.max(next, id + 1);
-    }
-
-    public Table(Map<?,?> map) {
-      tables.put(this, next);
-      id = next;
-      next++;
-
-      for (Map.Entry<?,?> entry : map.entrySet()) {
-        this.put(entry.getKey(), getTableValue(entry.getValue()));
-      }
-    }
-
-    private Object getTableValue(Object value) {
-      // return the value to be added in a table being constructed from a Map
-      if (value instanceof LinkedTreeMap) {
-        return new Table((Map<?,?>)value);
-      } else if (value instanceof ArrayList) {
-        LogoListBuilder alist = new LogoListBuilder();
-        ((ArrayList<?>)value).forEach((temp) -> {
-          alist.add(getTableValue(temp));
-        });
-        return alist.toLogoList();
-      } else {
-        return value;
-      }
-    }
-
-    public boolean equals(Object obj) {
-      return this == obj;
-    }
-
-    public LogoList toList() {
-      LogoListBuilder alist = new LogoListBuilder();
-      for (Iterator<Map.Entry<Object, Object>> entries = entrySet().iterator(); entries.hasNext();) {
-        Map.Entry<Object, Object> entry = entries.next();
-        LogoListBuilder pair = new LogoListBuilder();
-        pair.add(entry.getKey());
-        pair.add(entry.getValue());
-        alist.add(pair.toLogoList());
-      }
-      return alist.toLogoList();
-    }
-
-    public LogoList valuesList() {
-      LogoListBuilder alist = new LogoListBuilder();
-      for (Iterator<Map.Entry<Object, Object>> entries = entrySet().iterator(); entries.hasNext();) {
-        Map.Entry<Object, Object> entry = entries.next();
-        alist.add(entry.getValue());
-      }
-      return alist.toLogoList();
-    }
-
-    public String dump(boolean readable, boolean exportable, boolean reference) {
-      if (exportable && reference) {
-        return ("" + id);
-      } else {
-        return (exportable ? (id + ": ") : "") + org.nlogo.api.Dump.logoObject(this.toList(), true, exportable);
-      }
-    }
-
-    public String getExtensionName() {
-      return "table";
-    }
-
-    public String getNLTypeName() {
-      // since this extension only defines one type, we don't
-      // need to give it a name; "table:" is enough,
-      // "table:table" would be redundant
-      return "";
-    }
-
-    public boolean recursivelyEqual(Object o) {
-      if (!(o instanceof Table)) {
-        return false;
-      }
-      Table otherTable = (Table) o;
-      if (size() != otherTable.size()) {
-        return false;
-      }
-      for (Iterator<Object> iter = keySet().iterator(); iter.hasNext();) {
-        Object key = iter.next();
-        if (!otherTable.containsKey(key)
-            || !org.nlogo.api.Equality.equals(get(key),
-            otherTable.get(key))) {
-          return false;
-        }
-      }
-      return true;
-    }
-  }  // closing bracked for implements
 
   public void clearAll() {
     tables.clear();
-    next = 0;
+    Table.resetNext();
   }
+  static WeakHashMap<Table, Long> tables = new WeakHashMap<Table, Long>();
 
   public StringBuilder exportWorld() {
     StringBuilder buffer = new StringBuilder();
     for (Table table : tables.keySet()) {
       buffer.append
-          (org.nlogo.api.Dump.csv().encode
-              (org.nlogo.api.Dump.extensionObject(table, true, true, false)) + "\n");
+          (Dump.csv().encode
+              (Dump.extensionObject(table, true, true, false)) + "\n");
     }
     return buffer;
   }
@@ -225,8 +75,6 @@ public class TableExtension
     }
   }
 
-  ///
-
   public static class Clear implements Command {
     public Syntax getSyntax() {
       return SyntaxJ.commandSyntax
@@ -239,13 +87,8 @@ public class TableExtension
 
     public void perform(Argument args[], Context context)
         throws ExtensionException, LogoException {
-      Object arg0 = args[0].get();
-      if (!(arg0 instanceof Table)) {
-        throw new org.nlogo.api.ExtensionException
-            ("not a table: " +
-                org.nlogo.api.Dump.logoObject(arg0));
-      }
-      ((Table) arg0).clear();
+      Table t = getTable(args[0]);
+      t.clear();
     }
   }
 
@@ -262,17 +105,12 @@ public class TableExtension
 
     public Object report(Argument args[], Context context)
         throws ExtensionException, LogoException {
-      Object arg0 = args[0].get();
-      if (!(arg0 instanceof Table)) {
-        throw new org.nlogo.api.ExtensionException
-            ("not a table: " +
-                org.nlogo.api.Dump.logoObject(arg0));
-      }
+      Table t = getTable(args[0]);
       Object key = args[1].get();
-      Object result = ((Table) arg0).get(key);
+      Object result = t.get(key);
       if (result == null) {
         throw new ExtensionException
-            ("No value for " + org.nlogo.api.Dump.logoObject(key)
+            ("No value for " + Dump.logoObject(key)
                 + " in table.");
       }
       return result;
@@ -288,14 +126,9 @@ public class TableExtension
     }
 
     public Object report(Argument args[], Context context) throws ExtensionException {
-      Object table = args[0].get();
-      if (!(table instanceof Table)) {
-        throw new org.nlogo.api.ExtensionException
-                ("not a table: " +
-                        org.nlogo.api.Dump.logoObject(table));
-      }
+      Table t = getTable(args[0]);
       Object key = args[1].get();
-      return ((Table) table).getOrDefault(key, args[2].get());
+      return t.getOrDefault(key, args[2].get());
     }
   }
 
@@ -312,14 +145,8 @@ public class TableExtension
 
     public Object report(Argument args[], Context context)
         throws ExtensionException, LogoException {
-      Object arg0 = args[0].get();
-      if (!(arg0 instanceof Table)) {
-        throw new org.nlogo.api.ExtensionException
-            ("not a table: " +
-                org.nlogo.api.Dump.logoObject(arg0));
-      }
-      return Boolean.valueOf
-          (((Table) arg0).containsKey(args[1].get()));
+      Table t = getTable(args[0]);
+      return Boolean.valueOf(t.containsKey(args[1].get()));
     }
   }
 
@@ -336,13 +163,8 @@ public class TableExtension
 
     public Object report(Argument args[], Context context)
         throws ExtensionException, LogoException {
-      Object arg0 = args[0].get();
-      if (!(arg0 instanceof Table)) {
-        throw new org.nlogo.api.ExtensionException
-            ("not a table: " +
-                org.nlogo.api.Dump.logoObject(arg0));
-      }
-      return LogoList.fromJava(((Table) arg0).keySet());
+      Table t = getTable(args[0]);
+      return LogoList.fromJava(t.keySet());
     }
   }
 
@@ -359,13 +181,8 @@ public class TableExtension
 
     public Object report(Argument args[], Context context)
         throws ExtensionException, LogoException {
-      Object arg0 = args[0].get();
-      if (!(arg0 instanceof Table)) {
-        throw new org.nlogo.api.ExtensionException
-            ("not a table: " +
-                org.nlogo.api.Dump.logoObject(arg0));
-      }
-      return Double.valueOf(((Table) arg0).size());
+      Table t = getTable(args[0]);
+      return Double.valueOf(t.size());
     }
   }
 
@@ -380,46 +197,11 @@ public class TableExtension
 
     public Object report(Argument args[], Context context)
         throws ExtensionException, LogoException {
-      return new Table();
+      Table t = new Table();
+      tables.put(t, t.id);
+      return t;
     }
 
-  }
-
-  public static class FromJSONFile implements Reporter {
-    public Syntax getSyntax() {
-      return SyntaxJ.reporterSyntax
-          (new int[]{Syntax.StringType()},
-              Syntax.WildcardType());
-    }
-
-    public String getAgentClassString() {
-      return "OTPL";
-    }
-
-    public Object report(Argument args[], Context context)
-        throws ExtensionException, LogoException {
-
-      FileManager fm = ((ExtensionContext) context).workspace().fileManager();
-
-      try {
-        String path = fm.attachPrefix(args[0].getString());
-        File file = new File(path.toString());
-        if (!file.exists()) {
-          throw new ExtensionException(args[0].get().toString() + " does not exist.");
-        }
-        Gson gson = new Gson();
-
-        try {
-          Map<?,?> map = gson.fromJson(new FileReader(path), Map.class);
-          return new Table(map);
-        } catch (JsonSyntaxException e) {
-          throw new ExtensionException("Error trying to read the JSON file. It is probably missing a colon or comma. See the line number on the next line: " + e.getMessage());
-        }
-
-      } catch (IOException e) {
-        throw new ExtensionException(e.getMessage());
-      }
-    }
   }
 
   public static class Put implements Command {
@@ -435,15 +217,10 @@ public class TableExtension
 
     public void perform(Argument args[], Context context)
         throws ExtensionException, LogoException {
-      Object arg0 = args[0].get();
-      if (!(arg0 instanceof Table)) {
-        throw new org.nlogo.api.ExtensionException
-            ("not a table: " +
-                org.nlogo.api.Dump.logoObject(arg0));
-      }
+      Table t = getTable(args[0]);
       Object key = args[1].get();
       ensureKeyValidity(key);
-      ((Table) arg0).put(key, args[2].get());
+      t.put(key, args[2].get());
     }
   }
 
@@ -459,13 +236,8 @@ public class TableExtension
 
     public void perform(Argument args[], Context context)
         throws ExtensionException, LogoException {
-      Object arg0 = args[0].get();
-      if (!(arg0 instanceof Table)) {
-        throw new org.nlogo.api.ExtensionException
-            ("not a table: " +
-                org.nlogo.api.Dump.logoObject(arg0));
-      }
-      ((Table) arg0).remove(args[1].get());
+      Table t = getTable(args[0]);
+      t.remove(args[1].get());
     }
   }
 
@@ -482,13 +254,8 @@ public class TableExtension
 
     public Object report(Argument args[], Context context)
         throws ExtensionException, LogoException {
-      Object arg0 = args[0].get();
-      if (!(arg0 instanceof Table)) {
-        throw new org.nlogo.api.ExtensionException
-            ("not a table: " +
-                org.nlogo.api.Dump.logoObject(arg0));
-      }
-      return ((Table) arg0).toList();
+      Table t = getTable(args[0]);
+      return t.toList();
 
     }
   }
@@ -506,13 +273,8 @@ public class TableExtension
 
       public Object report(Argument args[], Context context)
           throws ExtensionException, LogoException {
-        Object arg0 = args[0].get();
-        if (!(arg0 instanceof Table)) {
-          throw new org.nlogo.api.ExtensionException
-                  ("not a table: " +
-                          org.nlogo.api.Dump.logoObject(arg0));
-        }
-        return ((Table) arg0).valuesList();
+        Table t = getTable(args[0]);
+        return t.valuesList();
       }
     }
 
@@ -530,7 +292,9 @@ public class TableExtension
     public Object report(Argument args[], Context context)
         throws ExtensionException, LogoException {
       LogoList alist = args[0].getList();
-      return new Table(alist);
+      Table t = new Table(alist);
+      tables.put(t, t.id);
+      return t;
     }
   }
 
@@ -545,11 +309,12 @@ public class TableExtension
 
     public Object report(Argument args[], Context context) throws ExtensionException, LogoException {
       LogoList lst = args[0].getList();
-      Table result = new Table();
+      Table t = new Table();
+      tables.put(t, t.id);
       for (Object obj : lst.javaIterable()) {
-        result.put(obj, 1.0 + (Double) result.getOrDefault(obj, 0.0));
+        t.put(obj, 1.0 + (Double)t.getOrDefault(obj, 0.0));
       }
-      return result;
+      return t;
     }
   }
 
@@ -566,13 +331,14 @@ public class TableExtension
     public Object report(Argument args[], Context context) throws ExtensionException, LogoException {
       LogoList lst = args[0].getList();
       AnonymousReporter classifier = args[1].getReporter();
-      Table result = new Table();
+      Table t = new Table();
+      tables.put(t, t.id);
       for (Object x : lst.toJava()) {
         Object group = classifier.report(context, new Object[] {x});
         ensureKeyValidity(group);
-        result.put(group, ((LogoList) result.getOrDefault(group, LogoList.Empty())).lput(x));
+        t.put(group, ((LogoList) t.getOrDefault(group, LogoList.Empty())).lput(x));
       }
-      return result;
+      return t;
     }
   }
 
@@ -593,21 +359,22 @@ public class TableExtension
       org.nlogo.nvm.Reporter classifier = ((org.nlogo.nvm.Argument) args[1]).unevaluatedArgument();
       org.nlogo.nvm.Context childContext = new org.nlogo.nvm.Context(((ExtensionContext) context).nvmContext(), agents);
       AgentIterator agentIter = agents.shufflerator(context.getRNG());
-      Table result = new Table();
+      Table t = new Table();
+      tables.put(t, t.id);
       while (agentIter.hasNext()) {
         Agent agent = agentIter.next();
         Object group = childContext.evaluateReporter(agent, classifier);
         ensureKeyValidity(group);
-        ((AgentSetBuilder) result.computeIfAbsent(group, k -> new AgentSetBuilder(agents.kind()))).add(agent);
+        ((AgentSetBuilder) t.computeIfAbsent(group, k -> new AgentSetBuilder(agents.kind()))).add(agent);
       }
-      result.replaceAll((k,v) -> ((AgentSetBuilder) v).build());
-      return result;
+      t.replaceAll((k,v) -> ((AgentSetBuilder) v).build());
+      return t;
     }
   }
 
-  public org.nlogo.core.ExtensionObject readExtensionObject(org.nlogo.api.ExtensionManager reader,
+  public ExtensionObject readExtensionObject(org.nlogo.api.ExtensionManager reader,
                                                            String typeName, String value)
-      throws org.nlogo.api.ExtensionException {
+      throws ExtensionException {
     try {
       String[] s = value.split(":");
       long id = Long.parseLong(s[0]);
@@ -617,7 +384,7 @@ public class TableExtension
       }
       return table;
     } catch (CompilerException ex) {
-      throw new org.nlogo.api.ExtensionException(ex.getMessage());
+      throw new ExtensionException(ex.getMessage());
     }
   }
 
@@ -627,26 +394,35 @@ public class TableExtension
         return table;
       }
     }
-    return new Table(id);
+    Table t = new Table(id);
+    tables.put(t, t.id);
+    return t;
   }
 
   /// helpers
 
+  public static Table getTable(Argument arg) throws ExtensionException {
+    Object maybeTable = arg.get();
+    if (!(maybeTable instanceof Table)) {
+      throw new ExtensionException("not a table: " + Dump.logoObject(maybeTable));
+    }
+    return (Table)maybeTable;
+  }
+
   private static boolean isValidKey(Object key) {
     return
-        key instanceof Double ||
-            key instanceof String ||
-            key instanceof Boolean ||
-            (key instanceof LogoList &&
-                containsOnlyValidKeys((LogoList) key));
+      key instanceof Double ||
+      key instanceof String ||
+      key instanceof Boolean ||
+      (key instanceof LogoList && containsOnlyValidKeys((LogoList) key));
   }
 
   private static void ensureKeyValidity(Object key) throws ExtensionException {
     if (!isValidKey(key)) {
-      throw new org.nlogo.api.ExtensionException
-              (org.nlogo.api.Dump.logoObject(key) + " is not a valid table key "
-                      + "(a table key may only be a number, a string, true or false, or a list "
-                      + "whose items are valid keys)");
+      throw new ExtensionException
+        (Dump.logoObject(key) + " is not a valid table key "
+          + "(a table key may only be a number, a string, true or false, or a list "
+          + "whose items are valid keys)");
 
     }
   }

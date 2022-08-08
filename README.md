@@ -155,6 +155,7 @@ table:put dict (one-of turtles) 10
 [`table:group-agents`](#tablegroup-agents)
 [`table:group-items`](#tablegroup-items)
 [`table:from-list`](#tablefrom-list)
+[`table:from-json`](#tablefrom-json)
 [`table:from-json-file`](#tablefrom-json-file)
 [`table:get`](#tableget)
 [`table:get-or-default`](#tableget-or-default)
@@ -165,6 +166,7 @@ table:put dict (one-of turtles) 10
 [`table:put`](#tableput)
 [`table:remove`](#tableremove)
 [`table:to-list`](#tableto-list)
+[`table:to-json`](#tableto-json)
 [`table:values`](#tablevalues)
 
 
@@ -241,6 +243,19 @@ Reports a new table with the contents of *list*.
 *list* must be a list of two element lists, or pairs.
 The first element in the pair is the key and the second element is the value.
 
+
+
+### `table:from-json`
+
+```NetLogo
+table:from-json string
+```
+
+
+    Reads in the JSON object from the given string argument, converts it to a table, and reports the table.
+    The JSON object in the argument must be an object, not an array (i.e. the outmost characters must be `{` and `}`, not `[` and `]`),
+    but there can be arrays inside the JSON object which will be converted to NetLogo lists.
+    
 
 
 ### `table:from-json-file`
@@ -339,6 +354,15 @@ Reports a list with the content of <i>table</i>. The list will be a
 list of two element lists, or pairs. The first element in the pair is
 the key and the second element is the value. The keys appear in the
 same order they were inserted.
+
+
+### `table:to-json`
+
+```NetLogo
+table:to-json table
+```
+
+Reports a string with the contents of the given table as a JSON string.
 
 
 ### `table:values`
