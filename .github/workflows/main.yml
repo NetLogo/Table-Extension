@@ -2,7 +2,10 @@ name: build-and-test
 
 on:
   push:
+  pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'
 
 env:
   LIBERICA_URL: https://download.bell-sw.com/java/17.0.3+7/bellsoft-jdk17.0.3+7-linux-amd64-full.tar.gz
