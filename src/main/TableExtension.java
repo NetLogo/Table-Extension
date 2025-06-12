@@ -376,7 +376,7 @@ public class TableExtension
                                                            String typeName, String value)
       throws ExtensionException {
     try {
-      String[] s = value.split(":");
+      String[] s = value.split(":", 2);
       long id = Long.parseLong(s[0]);
       Table table = getOrCreateTableFromId(id);
       if (s.length > 1) {
