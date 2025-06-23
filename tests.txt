@@ -160,7 +160,8 @@ ImportTable
   extensions [ table ]
   globals [ table1 temp ]
   O> set table1 table:from-list [ [ 1 2 ] [ "word" "value" ] [ 3 false ] ]
-  O> set temp (word "tmp/TestImportExport/test-file-" __nano-time ".csv")
+  O> __mkdir "tmp/table"
+  O> set temp (word "tmp/table/test-file-" __nano-time ".csv")
   O> export-world temp
   O> set table1 0
   O> import-world temp
@@ -171,7 +172,8 @@ ImportTablesSameTable
   globals [ table1 table2 temp ]
   O> set table1 table:from-list [ [ 1 2 ] [ 3 4 ] [ 4 5 ] ]
   O> set table2 table1
-  O> set temp (word "tmp/TestImportExport/test-file-" __nano-time ".csv")
+  O> __mkdir "tmp/table"
+  O> set temp (word "tmp/table/test-file-" __nano-time ".csv")
   O> export-world temp
   O> set table1 0
   O> set table2 0
@@ -185,7 +187,8 @@ ImportTablesTwoTables
   globals [ table1 table2 temp ]
   O> set table1 table:from-list [ [ 1 2 ] [ 3 4 ] [ 4 5 ] ]
   O> set table2 table:from-list [ [ 1 2 ] [ 3 4 ] [ 4 5 ] ]
-  O> set temp (word "tmp/TestImportExport/test-file-" __nano-time ".csv")
+  O> __mkdir "tmp/table"
+  O> set temp (word "tmp/table/test-file-" __nano-time ".csv")
   O> export-world temp
   O> set table1 0
   O> set table2 0
