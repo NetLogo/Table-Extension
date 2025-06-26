@@ -13,9 +13,9 @@ object Tests {
 class Tests extends TestLanguage(Tests.testFiles) with BeforeAndAfterAll {
   System.setProperty("org.nlogo.preferHeadless", "true")
 
-  override def afterAll() {
+  override def afterAll(): Unit = {
     val file = new File("tmp/table")
-    def deleteRec(f: File) {
+    def deleteRec(f: File): Unit = {
       if (f.isDirectory) {
         f.listFiles().foreach(deleteRec)
       }
