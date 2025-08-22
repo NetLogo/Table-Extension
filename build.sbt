@@ -4,7 +4,7 @@ name := "table"
 version := "2.1.0"
 isSnapshot := true
 
-netLogoVersion      := "7.0.0-beta2-8cd3e65"
+netLogoVersion      := "7.0.0-beta2-7e8f7a4"
 netLogoClassManager := "org.nlogo.extensions.table.TableExtension"
 netLogoTestExtras += (baseDirectory.value / "examples")
 
