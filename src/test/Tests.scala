@@ -3,6 +3,7 @@ package org.nlogo.extensions.table
 import org.scalatest.BeforeAndAfterAll
 
 import java.io.File
+
 import org.nlogo.headless.TestLanguage
 
 object Tests {
@@ -11,8 +12,6 @@ object Tests {
 }
 
 class Tests extends TestLanguage(Tests.testFiles) with BeforeAndAfterAll {
-  System.setProperty("org.nlogo.preferHeadless", "true")
-
   override def afterAll(): Unit = {
     val file = new File("tmp/table")
     def deleteRec(f: File): Unit = {
