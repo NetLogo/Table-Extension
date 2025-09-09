@@ -53,7 +53,7 @@ public class JsonPrims {
 
         try {
           Map<?,?> map = gson.fromJson(new FileReader(path), Map.class);
-          Table t = new Table(map);
+          Table t = Table.fromMap(map);
           TableExtension.tables.put(t, t.id);
           return t;
         } catch (JsonSyntaxException e) {
@@ -83,7 +83,7 @@ public class JsonPrims {
 
       try {
         Map<?,?> map = gson.fromJson(json, Map.class);
-        Table t = new Table(map);
+        Table t = Table.fromMap(map);
         TableExtension.tables.put(t, t.id);
         return t;
       } catch (JsonSyntaxException e) {
