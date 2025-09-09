@@ -292,7 +292,7 @@ public class TableExtension
     public Object report(Argument args[], Context context)
         throws ExtensionException, LogoException {
       LogoList alist = args[0].getList();
-      Table t = new Table(alist);
+      Table t = Table.fromList(alist);
       tables.put(t, t.id);
       return t;
     }
