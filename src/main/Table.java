@@ -27,15 +27,27 @@ public class Table
 
   public final long id;
 
+  public static Table fromList(LogoList alist) throws ExtensionException {
+    Table table = new Table();
+
+    table.addAll(alist);
+
+    return table;
+  }
+
+  public static Table fromMap(Map<?,?> map) {
+    Table table = new Table();
+
+    for (Map.Entry<?,?> entry : map.entrySet()) {
+      table.put(entry.getKey(), table.getTableValue(entry.getValue()));
+    }
+
+    return table;
+  }
+
   public Table() {
     this.id = Table.next;
     Table.next++;
-  }
-
-  public Table(LogoList alist)
-      throws ExtensionException {
-    this();
-    addAll(alist);
   }
 
   public void addAll(LogoList alist)
@@ -59,19 +71,10 @@ public class Table
     next = StrictMath.max(next, id + 1);
   }
 
-  public Table(Map<?,?> map) {
-    id = next;
-    next++;
-
-    for (Map.Entry<?,?> entry : map.entrySet()) {
-      this.put(entry.getKey(), getTableValue(entry.getValue()));
-    }
-  }
-
   private Object getTableValue(Object value) {
     // return the value to be added in a table being constructed from a Map
     if (value instanceof LinkedTreeMap) {
-      return new Table((Map<?,?>)value);
+      return Table.fromMap((Map<?,?>)value);
     } else if (value instanceof ArrayList) {
       LogoListBuilder alist = new LogoListBuilder();
       ((ArrayList<?>)value).forEach((temp) -> {
