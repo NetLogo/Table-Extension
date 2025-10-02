@@ -4,7 +4,7 @@ name := "table"
 version := "2.1.0"
 isSnapshot := true
 
-netLogoVersion      := "7.0.0-424b50b"
+netLogoVersion      := "7.0.0-2486d1e"
 netLogoClassManager := "org.nlogo.extensions.table.TableExtension"
 netLogoTestExtras += (baseDirectory.value / "examples")
 
@@ -14,8 +14,6 @@ javacOptions ++= Seq("-g", "-deprecation", "-Xlint:all", "-Xlint:-serial", "-Xli
 scalaVersion := "3.7.0"
 Test / scalaSource := baseDirectory.value / "src" / "test"
 scalacOptions ++= Seq("-deprecation", "-unchecked", "-Xfatal-warnings", "-feature", "-encoding", "us-ascii", "-release", "11")
-
-resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= Seq(
   "com.google.code.gson" % "gson" % "2.8.6"
