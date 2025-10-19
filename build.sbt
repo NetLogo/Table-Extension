@@ -1,7 +1,7 @@
 enablePlugins(org.nlogo.build.NetLogoExtension, org.nlogo.build.ExtensionDocumentationPlugin)
 
 name := "table"
-version := "2.1.0"
+version := "2.1.1"
 isSnapshot := true
 
 netLogoVersion      := "7.0.0-2486d1e"
