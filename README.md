@@ -255,7 +255,7 @@ table:from-json string
     Reads in the JSON object from the given string argument, converts it to a table, and reports the table.
     The JSON object in the argument must be an object, not an array (i.e. the outmost characters must be `{` and `}`, not `[` and `]`),
     but there can be arrays inside the JSON object which will be converted to NetLogo lists.
-    
+
 
 
 ### `table:from-json-file`
@@ -268,7 +268,7 @@ table:from-json-file filename
     Reads in the JSON object from *filename.json*, converts it to a table and reports the table.
     The JSON object in *filename.json* must be an object, not an array (i.e. the outmost characters of the file must be `{` and `}`, not `[` and `]`),
     but there can be arrays inside the JSON object which will be converted to NetLogo lists.
-    
+
 
 
 ### `table:get`
