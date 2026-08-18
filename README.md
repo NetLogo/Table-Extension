@@ -191,7 +191,7 @@ Counts the occurrences of each element of the given list and reports the counts 
 ### `table:group-agents`
 
 ```NetLogo
-table:group-agents agentset anonymous reporter
+table:group-agents agentset arrow reporter
 ```
 
 
@@ -213,7 +213,7 @@ observer: {{table: [[105 (agentset, 38 turtles)] [55 (agentset, 32 turtles)] [15
 ### `table:group-items`
 
 ```NetLogo
-table:group-items list anonymous-reporter
+table:group-items list arrow-reporter
 ```
 
 

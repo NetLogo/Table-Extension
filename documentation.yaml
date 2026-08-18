@@ -69,7 +69,7 @@ primitives:
   type: reporter
 - arguments:
   - type: list
-  - type: anonymous-reporter
+  - type: arrow-reporter
   description: |2
 
     Groups the items of the list based on the given reporter.
